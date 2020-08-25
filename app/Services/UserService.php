@@ -7,12 +7,15 @@ use App\User;
 use Illuminate\Database\Eloquent\Model;
 
 class UserService extends Model {
+    public static function getAllUsers() {
+        return User::with(['role'])->where('role_id', '!=', '1')->get();
+    }
     public static function getUserByEmail($email){
         return User::where("email", $email)->first();
     }
 
     public static function getUserById($id){
-        return User::find($id);
+        return User::with(['role'])->find($id);
     }
 
     public static function createUser($userRequest){
@@ -41,5 +44,12 @@ class UserService extends Model {
         $user->mobile_no = $userRequest['mobile_no'];
         $user->password = bcrypt($userRequest['password']);
         return $user;
+    }
+
+    public static function updateUserRole($user, $role) {
+        $user->role_id = $role->id;
+        $status = $user->save();
+
+        return $status ? self::getUserById($user->id) : null;
     }
 }

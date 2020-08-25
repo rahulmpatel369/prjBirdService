@@ -7,7 +7,12 @@ use App\User;
 use Illuminate\Database\Eloquent\Model;
 
 class BirdService extends Model {
-    public static function getAllBirds(){
+    public static function getAllBirds($filter){
+        if(isset($filter['verified'])) {
+            return Bird::with(['verifyByUser', 'createdByUser'])
+                        ->where('is_verified', ($filter['verified'] === "true") ? 1 : 0)->get();
+        }
+
         return Bird::with(['verifyByUser', 'createdByUser'])->where('is_verified', 1)->get();
     }
 
@@ -73,7 +78,7 @@ class BirdService extends Model {
         if(isset($image) && isset($ext) && isset($id)) {
             $img_path = "/" . env('BASE_PATH', 'images') . "/" . env('BIRD_IMAGE_PATH', 'birds');
             $outputFile = "bird_" . rand(10,100). "_" . $id . "." . $ext;
-            $result = self::base64StringToImage($image, $_SERVER['DOCUMENT_ROOT'] . $img_path, $outputFile);
+            $result = self::base64StringToImage($image, $_SERVER['DOCUMENT_ROOT'] . $img_path . "/", $outputFile);
             if($result == 1) {
                 return $img_path . "/" . $outputFile;
             }

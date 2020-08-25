@@ -10,8 +10,14 @@ use App\Models\Bird;
 use App\Services\BirdService;
 
 class BirdController extends Controller {
-    public function getAllBirds(){
-        $birds = BirdService::getAllBirds();
+    public function getAllBirds(Request $request){
+        $birds = BirdService::getAllBirds([]);
+        if($birds) return $this->response('Success', $birds);
+        return $this->errorResponse('Data not Found', [], self::$HTTP_NO_CONTENT);
+    }
+
+    public function getUnverifiedBirds() { 
+        $birds = BirdService::getAllBirds(['verified' => false]);
         if($birds) return $this->response('Success', $birds);
         return $this->errorResponse('Data not Found', [], self::$HTTP_NO_CONTENT);
     }

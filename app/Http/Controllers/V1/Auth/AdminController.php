@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\User;
+use App\Models\Role;
 use App\Services\UserService;
 
 use JWTAuth;
@@ -43,6 +44,25 @@ class AdminController extends Controller {
         $user = UserService::createUser($request->all());
         if($user) return $this->response('success', $user);
         return $this->response('Failed', []);
+    }
+
+    public function getAllUsers() { 
+        $users = UserService::getAllUsers();
+        if($users) return $this->response('Success', $users);
+        return $this->errorResponse('Data not Found', [], self::$HTTP_NO_CONTENT);
+    }
+
+    public function updateUserRole(User $user, Role $role) {
+        if($role->name == 'admin') $this->errorResponse('Validation Error', ['user' => 'Admin Role can not updated.']);
+        $user = UserService::updateUserRole($user, $role);
+        if($user) return $this->response('Success', $user);
+        return $this->errorResponse('Data not Found', [], self::$HTTP_NO_CONTENT);
+    }
+
+    public function getRoles() {
+        $roles = Role::where('id', '!=', 1)->get();
+        if($roles) return $this->response('Success', $roles);
+        return $this->errorResponse('Data not Found', [], self::$HTTP_NO_CONTENT);
     }
 
 }
